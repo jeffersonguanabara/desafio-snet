@@ -52,7 +52,9 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      
+      {% if user.autentication %}
+        <a class="navbar" href="{% url 'logout' %}">Sair</a>
+      {% endif %}
       </div>
     </nav>
   </header>
@@ -111,24 +113,8 @@ $(document).ready(function(){
 </script>
 
 <script>
-$('#deletar-cliente').on('click', function(e) {
-    var id = $('#inputIdRemover').val();
-    $.ajax({
-        type: "POST",
-        dataType:'jsonp'
-        url: '{% url "deletar-cliente" %}',
-        data: {
-            "id": id,
-        },
-        success: function(data) {
-            alert(data)
-        }
-    });
-});
-</script>
-
-<script>
-var map = function mapeando() {
+$(document).bind("ready", function() {
+  $("input[name=pais]").on("blur", function(){
     alert('deu certo')
     var mapObj = new GMaps({
       el: '#map',
@@ -164,8 +150,25 @@ var map = function mapeando() {
         }
       }
     });  
-}
+  });
+
+  $('#deletar-cliente').on('click', function(e) {
+    var id = $('#inputIdRemover').val();
+    $.ajax({
+        type: "POST",
+        dataType:'jsonp'
+        url: '{% url "deletar-cliente" %}',
+        data: {
+            "id": id,
+        },
+        success: function(data) {
+            alert(data)
+        }
+    });
+  });
+});
 
 </script>
+
 </body>
 </html>

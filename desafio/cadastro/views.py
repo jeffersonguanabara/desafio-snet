@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import Cliente
+from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from django.http import JsonResponse
 
 # Create your views here.
+
 
 class ListarCliente(View):
 
@@ -16,6 +20,7 @@ class ListarCliente(View):
         except:
             context['clientes'] = []
         return render(request, 'cliente/listagem.html', context)
+
 
 class CadastrarCliente(View):
 
@@ -50,6 +55,7 @@ class CadastrarCliente(View):
         context['status'] = teste
         return render(request, 'cliente/listagem.html', context)
 
+
 class DeletarCliente(View):
 
     def post(self, request):
@@ -68,6 +74,7 @@ class DeletarCliente(View):
         context['status'] = teste
         return JsonResponse(context)
 
+
 class EditarCliente(View):
 
     def post(self, request):
@@ -80,10 +87,26 @@ class Login(View):
         return render(request, 'login/signin.html')
 
     def post(self, request):
-        return ''
+        email = request.POST.get('email')
+        password = request.POST.get('senha')
+        usernamelog = User.objects.get(email=email)
+        print(usernamelog)
+        user = authenticate(request, username=usernamelog, password=password)
+        print(user)
+        if user is not None:
+            login(request, user)
+            return redirect('cliente')
+        else:
+            messages.error(request, "Email ou senha inválidos. Favor tentar novamente.")
+        return redirect('login')
 
-    def validadorDeLogin(self):
-        return ''
+
+class Logout(View):
+    
+    def post(self, request):
+        logout(request)
+        return redirect('login')
+
 
 class Usuario(View):
 
@@ -91,23 +114,25 @@ class Usuario(View):
         return render(request, 'usuario/cadastrar-usuario.html')
 
     def post(self, request):
-        context = {}
-        teste = False
+        print('post usuario')        
         try:
-            usuario = User()
-            usuario.username = request.POST['nome']
-            usuario.email = request.POST['email']
-            usuario.password = request.POST['senha']
-            usuario.save()
-            teste = True
-            context["mensagem"] = "Usuário Cadastrado com sucesso."
+            user = User.objects.create_user(request.POST.get('nome'), request.POST.get('email').lower(), request.POST.get('senha'))
+            messages.success(request, "Usuário Cadastrado com sucesso.")
+            return redirect('login')
         except:
-            teste = False
-            context["mensagem"] = "Houve algum problema, tente novamente."
-        # terminar com a mensagem e com o redirecionamento correto.
+            messages.error(request, "Houve algum problema, tente novamente.")
+        return redirect('usuario')
         
-        context["status"] = teste
-        return JsonResponse(context)
+class UserManager(BaseUserManager):
+
+    def create_user(self, nome, email, password=None):
+        if not email:
+            raise ValueError("Os usuários devem ter um endereço de email")
+        
+        user = self.model(username=nome, email=self.normalize_email(email))
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
     
         
