@@ -1,0 +1,171 @@
+{% load static %}
+<html class="h-100" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Desafio Snet</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.4/examples/sticky-footer-navbar/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" href="/docs/4.4/assets/img/favicons/apple-touch-icon.png" sizes="180x180">
+    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="manifest" href="/docs/4.4/assets/img/favicons/manifest.json">
+    <link rel="mask-icon" href="/docs/4.4/assets/img/favicons/safari-pinned-tab.svg" color="#563d7c">
+    <link rel="icon" href="/docs/4.4/assets/img/favicons/favicon.ico">
+    <meta name="msapplication-config" content="/docs/4.4/assets/img/favicons/browserconfig.xml">
+    <meta name="theme-color" content="#563d7c">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="{% static 'sticky-footer-navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/maps.css' %}">
+</head>
+<body class="d-flex flex-column h-100">
+  <header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="#">Desafio Snet</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      </div>
+    </nav>
+  </header>
+
+{% block content%}
+{% endblock %}
+
+  <footer class="footer mt-auto py-3">
+    <div class="container">
+      <span class="text-muted"></span>
+    </div>
+  </footer>
+  
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.4.1.min.js"><\/script>')</script><script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
+<script src=<"https://maps.googleapis.com/maps/api/js?key=AIzaSyARQEVKeHokclywTvHLGNmIf017RRC57Mk"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
+<!--<script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/actions-clientes.js' %}"></script>
+
+<script>
+$(document).ready(function(){
+  $('#minhaTabela').DataTable({
+      "language": {
+          "lengthMenu": "Mostrando _MENU_ registros por página",
+          "zeroRecords": "Nada encontrado",
+          "info": "Mostrando página _PAGE_ de _PAGES_",
+          "infoEmpty": "Nenhum registro disponível",
+          "infoFiltered": "(filtrado de _MAX_ registros no total)"
+      }
+  });
+
+  $("input[name=cep]").blur(function(){
+    var cep = $(this).val().substring(0,2)+$(this).val().substring(3,6)+$(this).val().substring(7,10);
+    alert(cep);
+		if(cep){
+			var url = 'https://viacep.com.br/ws/'+cep+'/json/';
+			$.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'jsonp',
+        crossDomain: true,
+        success : function(json){
+          alert('voltou');
+          if(json.logradouro){
+            $("input[name=endereco]").val(json.logradouro);
+            $("input[name=cidade]").val(json.localidade);
+            $("input[name=estado]").val(json.uf);
+          }
+        }
+			});
+		}					
+	});
+});
+</script>
+
+<script>
+$('#deletar-cliente').on('click', function(e) {
+    var id = $('#inputIdRemover').val();
+    $.ajax({
+        type: "POST",
+        dataType:'jsonp'
+        url: '{% url "deletar-cliente" %}',
+        data: {
+            "id": id,
+        },
+        success: function(data) {
+            alert(data)
+        }
+    });
+});
+</script>
+
+<script>
+var map = function mapeando() {
+    alert('deu certo')
+    var mapObj = new GMaps({
+      el: '#map',
+      lat: -12.043333,
+      lng: -77.028333,
+      zoom: 4,
+      width: 600,
+      height: 400
+    });
+    
+    var cep = $("input[name=cep]").val();
+    var endereco = $("input[name=endereco]").val();
+    var numero = $("input[name=numero]").val();
+    var cidade = $("input[name=cidade]").val();
+    var estado = $("input[name=estado]").val();
+    var pais = $("input[name=pais]").val();
+
+    var url = endereco +", "+numero+", "+cidade+" - "+estado+", "+cep+", "+pais; 
+    GMaps.geocode({
+      address: url,
+      callback: function(results, status) {
+        if (status == 'OK') {
+          var latlng = results[0].geometry.location;
+            mapObj.setCenter(latlng.lat(),latlng.lng()); // Função para centralizar
+            mapObj.setZoom(15); // Função para ajuste de zoom
+            mapObj.addMarker({ // Função para adicionar o marcador
+              lat: latlng.lat(),
+              lng: latlng.lng()
+            });
+        }
+        else {
+          alert(“Endereço não encontrado”);
+        }
+      }
+    });  
+}
+
+</script>
+</body>
+</html>
