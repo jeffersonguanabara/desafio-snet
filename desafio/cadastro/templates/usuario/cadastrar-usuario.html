@@ -9,9 +9,11 @@
                     <div class"card-body">
                         <h2 class="card-title">Cadastrar Usuario</h2>
                         <p class="">Preencha os campos abaixo</p>
-                        {% for message in  messages %}
-                            <div class="alert alert-danger" role="alert"><span>{{message}}</span></div>
-                        {% endfor %}            
+                        {% if messages %}
+                            {% for message in  messages %}
+                                <div class="alert alert-{{ message.tags}}" role="alert" style="transition-duration: 2s"><span>{{message}}</span></div>
+                            {% endfor %}
+                        {% endif %}          
                         <div class="form-group">
                             <label for="InputNome" style="float:left;">Nome Completo</label>
                             <input type="text" class="form-control" id="InputNome" name="nome" placeholder="Nome Completo" required>

@@ -52,8 +52,11 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      {% if user.autentication %}
-        <a class="navbar" href="{% url 'logout' %}">Sair</a>
+      {% if not request.user.is_anonymous %}
+        <div style="float:right">
+          <div id="user"><span style="color:white">{{ user.username }}</span></div>
+          <div id="logout"><a class="navbar" href="{% url 'logout' %}">Sair</a></div>
+        </div>
       {% endif %}
       </div>
     </nav>
@@ -70,11 +73,14 @@
   
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script>window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.4.1.min.js"><\/script>')</script><script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
-<script src=<"https://maps.googleapis.com/maps/api/js?key=AIzaSyARQEVKeHokclywTvHLGNmIf017RRC57Mk"></script>
+<!--<script src=<"https://maps.googleapis.com/maps/api/js?key=AIzaSyARQEVKeHokclywTvHLGNmIf017RRC57Mk"></script>-->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-bd-xQ1UBC2t9EpbM91tqTW3QhQA3yFs&callback=initMap"
+  type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.15/jquery.mask.min.js"></script>
-<!--<script type="text/javascript" src="{% static 'js/jquery-3.4.1.min.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'js/gmaps.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/actions-clientes.js' %}"></script>
+
 
 <script>
 $(document).ready(function(){
@@ -88,10 +94,11 @@ $(document).ready(function(){
       }
   });
 
-  $("input[name=cep]").blur(function(){
+  let form = document.querySelector("form");
+  
+  form.cep.addEventListener('blur', function(){
     var cep = $(this).val().substring(0,2)+$(this).val().substring(3,6)+$(this).val().substring(7,10);
-    alert(cep);
-		if(cep){
+    if(cep){
 			var url = 'https://viacep.com.br/ws/'+cep+'/json/';
 			$.ajax({
         type: 'POST',
@@ -99,40 +106,40 @@ $(document).ready(function(){
         dataType: 'jsonp',
         crossDomain: true,
         success : function(json){
-          alert('voltou');
           if(json.logradouro){
             $("input[name=endereco]").val(json.logradouro);
             $("input[name=cidade]").val(json.localidade);
+            $("input[name=bairro]").val(json.bairro);
             $("input[name=estado]").val(json.uf);
           }
         }
 			});
 		}					
 	});
-});
-</script>
 
-<script>
-$(document).bind("ready", function() {
-  $("input[name=pais]").on("blur", function(){
-    alert('deu certo')
-    var mapObj = new GMaps({
+  var mapObj = new GMaps({
       el: '#map',
       lat: -12.043333,
       lng: -77.028333,
       zoom: 4,
-      width: 600,
+      width: 500,
       height: 400
-    });
-    
-    var cep = $("input[name=cep]").val();
-    var endereco = $("input[name=endereco]").val();
-    var numero = $("input[name=numero]").val();
-    var cidade = $("input[name=cidade]").val();
-    var estado = $("input[name=estado]").val();
-    var pais = $("input[name=pais]").val();
+  }); 
 
-    var url = endereco +", "+numero+", "+cidade+" - "+estado+", "+cep+", "+pais; 
+  form.pais.addEventListener('blur', function(){
+           
+    var cep = form.cep.value;
+    var endereco = form.endereco.value;
+    var numero = form.numero.value;
+    var cidade = form.cidade.value;
+    var bairro = form.bairro.value;
+    var estado = form.estado.value;
+    var pais = form.pais.value;
+
+    cep = cep.substring(0,2)+cep.substring(3,10)
+
+    var url = endereco +", "+numero+", "+bairro+", "+cidade+" - "+estado+", "+cep+", "+pais; 
+    console.log(url);
     GMaps.geocode({
       address: url,
       callback: function(results, status) {
@@ -146,27 +153,17 @@ $(document).bind("ready", function() {
             });
         }
         else {
-          alert(“Endereço não encontrado”);
+          alert("Endereço não encontrado");
         }
       }
     });  
   });
 
-  $('#deletar-cliente').on('click', function(e) {
-    var id = $('#inputIdRemover').val();
-    $.ajax({
-        type: "POST",
-        dataType:'jsonp'
-        url: '{% url "deletar-cliente" %}',
-        data: {
-            "id": id,
-        },
-        success: function(data) {
-            alert(data)
-        }
-    });
-  });
+  
 });
+</script>
+
+<script>
 
 </script>
 

@@ -1,23 +1,16 @@
 {% extends '../estaticos/base.html' %}
-{% block content %}
+{% load static %}
+{% block  content%}
 
-<div class="row" style="display:none">
-    {% if messages %}
-        {% for message in  messages %}
-            <div class="alert alert-{{ message.tags}}" role="alert" style="transition-duration: 2s"><span>{{message}}</span></div>
-        {% endfor %}
-    {% endif %}
-</div>
-<div class="row">
-    <div class="col-sm-6"> 
-        <div class="card" style="width: 40rem; padding: 2rem; margin-top: 3rem; margin-left: 3rem;">
-            <div class"card-body">
-                <h2 class="card-title">Cadastrar Cliente</h2>
-
-                <form id="form-cliente" method="post"> {% csrf_token %}
-                    <div class="form-group">
-                        <label for="InputNome">Nome Completo</label>
+<div class="col-sm-6"> 
+    <div class="card" style="width: 40rem; padding: 2rem; margin-top: 3rem; margin-left: 3rem;">
+        <div class"card-body">
+            <h2 class="card-title">Editar Cliente</h2>
+            <form id="form-cliente" method="post"> {% csrf_token %}
+                <div class="form-group">
+                    <label for="InputNome">Nome Completo</label>
                         <input type="text" class="form-control" id="InputNome" name="nome" placeholder="Nome Completo" required>
+                        <input type="text" class="form-control" id="InputNome" name="id" value="{{id}}" style="display:none">
                     </div>
                     <div class="form-group">
                         <label for="InputTelefone">Telefone</label>
@@ -49,31 +42,11 @@
                         <input type="text" class="form-control" id="InputPais" name="pais">
                     </div>     
                     <div class="form-group">
-                        
+                        <a href="" type="button" class="btn btn-secondary">Voltar</a>    
                         <button type="submit" class="btn btn-primary">Salvar</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-sm-6">
-        <div class="card card-cascade narrower float-right" style="width: 35rem; margin-top: 3rem;">
-            <div class="card-body card-body-cascade text-center">
-                <h2 class="card-title"> Mapa </h2>   
-                <!--Google map-->
-                <div id="map">
-                    <img id="img"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row"> 
-    <div class="text-center" style="padding:50%">
-        <form method="get" action="{% url 'cliente' %}"> {% csrf_token %}
-            <button type="submit" class="btn btn-secondary">Voltar</button>
-        </form>
-    </div>    
-</div>
-
 {% endblock %}
